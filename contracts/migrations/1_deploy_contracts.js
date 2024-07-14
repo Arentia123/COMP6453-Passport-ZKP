@@ -1,8 +1,6 @@
-const NFT = artifacts.require("NFT");
-// const MetaCoin = artifacts.require("MetaCoin");
+const certificate = artifacts.require("CertificateRegistry");
+
 
 module.exports = function(deployer) {
-  deployer.deploy(NFT);
-  // deployer.link(ConvertLib, MetaCoin);
-  // deployer.deploy(MetaCoin);
+  deployer.deploy(certificate);
 };
