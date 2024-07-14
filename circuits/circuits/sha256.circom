@@ -1,42 +1,67 @@
-pragma circom 2.0.0;
+pragma circom 2.0.5;
 
 include "circomlib/circuits/sha256/sha256.circom";
-include "circomlib/circuits/bitify.circom";
+include "@zk-email/circuits/lib/sha.circom";
 
-/**
- * Wrapper around SHA256 to support bytes as input instead of bits
- * @param  N   The number of input bytes
- * @input  in  The input bytes
- * @output out The SHA256 output of the n input bytes, in bytes
- *
- * SOURCE: https://github.com/celer-network/zk-benchmark/blob/main/circom/circuits/sha256/sha256_bytes.circom
+// zk-email dynamic sha256 hash but with bytes output
+template Sha256BytesDynamicOutBytes(maxByteLength) {
+    signal input paddedIn[maxByteLength];
+    signal input paddedInLength;
+    signal output out[32];
+
+    var maxBits = maxByteLength * 8;
+    component sha = Sha256General(maxBits);
+
+    component bytes[maxByteLength];
+    for (var i = 0; i < maxByteLength; i++) {
+        bytes[i] = Num2Bits(8);
+        bytes[i].in <== paddedIn[i];
+        for (var j = 0; j < 8; j++) {
+            sha.paddedIn[i*8+j] <== bytes[i].out[7-j];
+        }
+    }
+    sha.paddedInLength <== paddedInLength * 8;
+
+    component bitsToBytes[32];
+    for (var i = 0; i < 32; i++) {
+        bitsToBytes[i] = Bits2Num(8);
+        for (var j = 0; j < 8; j++) {
+            bitsToBytes[i].in[7-j] <== sha.out[i*8+j];
+        }
+        out[i] <== bitsToBytes[i].out;
+    }
+}
+
+/*
+ * Helper function for computing sha256 commitments that take as input and 
+ * output bytes instead of bits.
+ * 
+ * Source: https://github.com/succinctlabs/telepathy-circuits/blob/main/circuits/sha256.circom
  */
-template Sha256Bytes(N) {
-  signal input in[N];
-  signal output out[32];
 
-  // convert input bytes to bits
-  component byte_to_bits[N];
-  for (var i = 0; i < N; i++) {
-    byte_to_bits[i] = Num2Bits(8);
-    byte_to_bits[i].in <== in[i];
-  }
+template Sha256BytesOutBytes(n) {
+    signal input in[n];
+    signal output out[32];
 
-  // sha256 over bits
-  component sha256 = Sha256(N*8);
-  for (var i = 0; i < N; i++) {
-    for (var j = 0; j < 8; j++) {
-      sha256.in[i*8+j] <== byte_to_bits[i].out[7-j];
+    component byteToBits[n];
+    for (var i = 0; i < n; i++) {
+        byteToBits[i] = Num2Bits(8);
+        byteToBits[i].in <== in[i];
     }
-  }
 
-  // convert output bytes to bits
-  component bits_to_bytes[32];
-  for (var i = 0; i < 32; i++) {
-    bits_to_bytes[i] = Bits2Num(8);
-    for (var j = 0; j < 8; j++) {
-      bits_to_bytes[i].in[7-j] <== sha256.out[i*8+j];
+    component sha256 = Sha256(n*8);
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < 8; j++) {
+            sha256.in[i*8+j] <== byteToBits[i].out[7-j];
+        }
     }
-    out[i] <== bits_to_bytes[i].out;
-  }
+
+    component bitsToBytes[32];
+    for (var i = 0; i < 32; i++) {
+        bitsToBytes[i] = Bits2Num(8);
+        for (var j = 0; j < 8; j++) {
+            bitsToBytes[i].in[7-j] <== sha256.out[i*8+j];
+        }
+        out[i] <== bitsToBytes[i].out;
+    }
 }
