@@ -1,20 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
-
+import {LeanIMT, LeanIMTData} from "contracts/LeanIMT.sol";
 contract CertificateRegistry{
-    mapping (string => Certification) public registry;
+    mapping (uint256 => Certification) public registry;
     struct Certification{
-        address issuer;
         address holder;
-        string signature;
-        string state;
-        string name;
     }
-    modifier onlyHolder(string memory hash){
+    modifier onlyHolder(uint256 hash){
         require(registry[hash].holder==msg.sender,"Access Denied");
         _;
     }
     address owner;
+    LeanIMTData public data;
     constructor(){
         owner=msg.sender;
     }
@@ -22,38 +19,28 @@ contract CertificateRegistry{
         require(msg.sender==owner,"Access Denied");
         _;
     }
-    function addCertificate(address _holder,
-        string memory _signature,
-        string memory _state,
-        string memory _hash,
-        string memory _name) public onlyIssuer{
-        registry[_hash].holder=_holder;
-        registry[_hash].issuer=msg.sender;
-        registry[_hash].signature=_signature;
-        registry[_hash].state=_state;
-        registry[_hash].name=_name;
+    function addCertificate(uint256 _hash) public{
+        registry[_hash].holder=msg.sender;
+        LeanIMT.insert(data,_hash);
+
     }
 
-    function removeCertificate(string memory _hash) onlyHolder(_hash) public{
+    function removeCertificate(uint256 _hash) onlyHolder(_hash) public{
         delete registry[_hash];
+
     }
 
-    function getCertificate(string memory _hash) public view returns(
-        address,
-        address,
-        string memory,
-        string memory,
-        string memory
-    ){
-        return (registry[_hash].holder,
-        registry[_hash].issuer,
-        registry[_hash].signature,
-        registry[_hash].state,
-        registry[_hash].name);
+    function getCertificate(uint256 _hash) public view returns (address)
+    {
+        return registry[_hash].holder;
     }
 
-    function modifyState(string memory _hash,string memory _state) onlyIssuer() public{
-        registry[_hash].state=_state;
+    function proof(uint256 _hash) public view returns (bool) {
+        return LeanIMT.has(data, _hash);
+    }
+
+    function getRoot() onlyIssuer() public view returns (uint256) {
+        return LeanIMT.root(data);
     }
 
 }
