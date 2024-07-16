@@ -1,35 +1,10 @@
 [
   {
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_holder",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_signature",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_state",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "_hash",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
+        "type": "uint256"
       }
     ],
     "name": "addCertificate",
@@ -40,9 +15,45 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "_hash",
-        "type": "string"
+        "type": "uint256"
+      }
+    ],
+    "name": "removeCertificate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "data",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "size",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "depth",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_hash",
+        "type": "uint256"
       }
     ],
     "name": "getCertificate",
@@ -51,26 +62,19 @@
         "internalType": "address",
         "name": "",
         "type": "address"
-      },
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getRoot",
+    "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -79,71 +83,39 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "_hash",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_state",
-        "type": "string"
+        "type": "uint256"
       }
     ],
-    "name": "modifyState",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "proof",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "",
-        "type": "string"
+        "type": "uint256"
       }
     ],
     "name": "registry",
     "outputs": [
       {
         "internalType": "address",
-        "name": "issuer",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "holder",
         "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "signature",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "state",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_hash",
-        "type": "string"
-      }
-    ],
-    "name": "removeCertificate",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]
