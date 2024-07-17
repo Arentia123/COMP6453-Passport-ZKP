@@ -11,6 +11,8 @@ contract CertificateRegistry{
         _;
     }
     address owner;
+    uint256[] public certificates;
+
     LeanIMTData public data;
     constructor(){
         owner=msg.sender;
@@ -19,14 +21,29 @@ contract CertificateRegistry{
         require(msg.sender==owner,"Access Denied");
         _;
     }
+
+    function remove(uint256 _hash) public {
+
+        for (uint256 i = 0; i < certificates.length - 1; i++) {
+            if(certificates[i]==_hash){
+                for (uint256 j = i; j < certificates.length - 1; j++) {
+                    certificates[j] = certificates[j + 1];
+                }
+            }
+        }
+        certificates.pop();
+    }
+
     function addCertificate(uint256 _hash) public{
         registry[_hash].holder=msg.sender;
+        certificates.push(_hash);
         LeanIMT.insert(data,_hash);
-
     }
 
     function removeCertificate(uint256 _hash) onlyHolder(_hash) public{
         delete registry[_hash];
+        remove(_hash);
+        LeanIMT.remove(data,_hash,certificates);
 
     }
 
