@@ -10,13 +10,13 @@
 Download Ganache,add truffle-config.js in the contract workspace,modify HARDFORK in chain to london,then goes to Remix,in the compile advanced settings,switch to london.
 In the deploy manu,switch network to Dev-ganache,then deploy it.
 #### Usecases
-addCertificate():only authority can add certificate and send it to holder's address,data signature,state,unique hash are required.
+addCertificate():only holder can add certificate,only hash is required,hash would append to the Merkle tree.
 
-modifyState():only authority can modify certificate state,unique hash is required.
+removeCertificate():only holders can remove certificate,delete from Merkle tree.
 
-removeCertificate():only holders can remove certificate.
+getProof():return if the provided hash included in Merkle tree.
 
-getCertificate():return information of certificates.
+getRoot():return Merkle root.
 
 #### Examples
 In the test folder,I add some examples for javasrcipt and contract interaction.
