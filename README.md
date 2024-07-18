@@ -7,6 +7,7 @@
 
 ### Contracts
 #### Setup
+`npm install`
 Download Ganache,add truffle-config.js in the contract workspace,modify HARDFORK in chain to london,then goes to Remix,in the compile advanced settings,switch to london.
 In the deploy manu,switch network to Dev-ganache,then deploy it.
 #### Usecases
