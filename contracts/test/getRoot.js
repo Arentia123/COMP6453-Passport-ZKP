@@ -5,7 +5,7 @@ const web3 = new Web3('http://localhost:7545');
 
 // // Your account private key and the contract address
 const privateKey = '0x80eb63ef37a8d3a14835cc859a95d2c820b3568c0ece51601c526292859198bb';
-const contractAddress = '0xc9795C539E4F7C337b69FB0ED38016124B56B89d';
+const contractAddress = '0x33E786B802D565Af9eB7cd57792Cdba6e1bc85bD';
 
 const contract = new web3.eth.Contract(certificate, contractAddress);
 
