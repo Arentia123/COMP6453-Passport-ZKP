@@ -35,5 +35,11 @@
     "file": "fibonacci",
     "template": "Fibonacci",
     "params": [11]
+  },
+  "passport_verification": {
+      "file": "passport_verification",
+      "template": "PassportVerification",
+      "pubs": ["expected_root", "current_timestamp"],
+      "params": [256, 192]
   }
 }

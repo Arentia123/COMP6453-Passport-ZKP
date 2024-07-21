@@ -5,7 +5,7 @@ function get_dg1_size() {
 }
 
 function get_expiry_date_offset() {
-    return 70; // TODO: find the expiry date offset
+    return 70;
 }
 
 function get_sha256_hash_size() {
@@ -17,7 +17,13 @@ function get_n() {
     return 121;
 }
 
+// taken by default from zk-email
 function get_k() {
     return 17;
+}
+
+// arbitrary merkle tree depth, could potentially change
+function get_max_depth() {
+    return 16;
 }
 

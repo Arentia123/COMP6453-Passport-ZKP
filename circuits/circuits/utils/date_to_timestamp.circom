@@ -45,8 +45,7 @@ template Div() {
     out <-- in[0] \ in[1];
     signal rem <-- in[0] % in[1];
     // rem must be < in[1], otherwise we could have multiple solutions
-    // TODO: need to range check that in[] is representable with 252 bits
-    // or is this implicit in LessThan?
+    // there should be an implicit check in LessThan that the inputs are <= 252 bits
     signal rem_lt_in1 <== LessThan(252)([rem, in[1]]);
     rem_lt_in1 === 1;
     signal out_eq <== IsEqual()([out * in[1] + rem, in[0]]);

@@ -1,6 +1,6 @@
 import { CircuitSignals, WitnessTester } from "circomkit";
 import { circomkit } from "./common";
-import { INPUT_SIGNALS, mockPassportData } from "./common/passportData";
+import { INPUT_SIGNALS, MAX_DEPTH, mockPassportData } from "./common/passportData";
 import assert from "node:assert";
 
 const PARAMS = [256, 192];
@@ -61,7 +61,28 @@ describe("passport_verification", () => {
         await circuit.expectFail(mockDataCopy);
     });
 
-    it("should fail if the pubkey proof of membership is invalid");
+    it("should fail if the pubkey proof of membership is invalid", async () => {
+        let mockDataCopy = copyMockData();
+        mockDataCopy.expected_root = (BigInt(mockDataCopy.expected_root) + 1n).toString();
+        await circuit.expectFail(mockDataCopy);
+
+        mockDataCopy = copyMockData();
+        mockDataCopy.depth = (parseInt(mockDataCopy.depth) + 1).toString();
+        await circuit.expectFail(mockDataCopy);
+
+        // check specific case mentioned in binary_merkle_root where depth > MAX_DEPTH
+        mockDataCopy.depth = (MAX_DEPTH + 1).toString();
+        mockDataCopy.expected_root = "0";
+        await circuit.expectFail(mockDataCopy);
+
+        mockDataCopy = copyMockData();
+        mockDataCopy.siblings[0] = (BigInt(mockDataCopy.siblings[0]) + 1n).toString();
+        await circuit.expectFail(mockDataCopy);
+
+        mockDataCopy = copyMockData();
+        mockDataCopy.indices[0] = (parseInt(mockDataCopy.indices[0]) + 1).toString();
+        await circuit.expectFail(mockDataCopy);
+    });
 
     const dateBytesToTimestamp = (bytes: Array<string>) => {
         const date = bytes.map((byte) => parseInt(String.fromCharCode(parseInt(byte))));
