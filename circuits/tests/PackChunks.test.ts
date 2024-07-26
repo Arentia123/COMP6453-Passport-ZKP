@@ -1,12 +1,15 @@
 import { circomkit } from "./common";
 import { WitnessTester } from "circomkit";
+import { expect } from "chai";
+import { SignalValueType } from "circomkit/dist/types";
 
-describe("pack_chunks", async () => {
+describe("PackChunks", async () => {
     let circuit: WitnessTester;
     before(async () => {
         circuit = await circomkit.WitnessTester("pack_chunks", {
-            file: "pack_chunks",
+            file: "utils/pack_chunks",
             template: "PackChunks",
+            params: [121, 17]
         });
     });
 
@@ -15,7 +18,7 @@ describe("pack_chunks", async () => {
         for (let i = 0; i < 17; i++)
             input[i] = (i + 1).toString();
 
-        const out = await circuit.calculateWitness({ in: input });
-
+        const { out } = await circuit.compute({ in: input }, ["out"]);
+        expect((out as SignalValueType[]).length).eq(9);
     });
 });

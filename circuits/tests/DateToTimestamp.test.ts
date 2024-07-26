@@ -1,11 +1,11 @@
 import { WitnessTester } from "circomkit";
 import { circomkit } from "./common";
 
-describe("date_to_timestamp", async () => {
+describe("DateToTimestamp", async () => {
     let circuit: WitnessTester;
     before(async () => {
         circuit = await circomkit.WitnessTester("date_to_timestamp", {
-            file: "date_to_timestamp",
+            file: "utils/date_to_timestamp",
             template: "DateToTimestamp",
         });
     });

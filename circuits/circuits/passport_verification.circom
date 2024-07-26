@@ -49,6 +49,8 @@ template PassportVerification(max_preecontent_size, max_econtent_size) {
     signal input current_timestamp;
 
     // check passport is not expired
+    // @todo is it necessary to check the assumptions for SelectSubArray? if so
+    // probably implement a strict version that checks them and replace all below
     signal expiry_date[6] <== SelectSubArray(dg1_size, 6)(dg1, expiry_date_offset, 6);
     signal expiry_timestamp <== DateToTimestamp()(expiry_date);
     signal expiry_timestamp_gt_current <== GreaterThan(64)([expiry_timestamp, current_timestamp]);

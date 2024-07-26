@@ -1,16 +1,15 @@
 import { CircuitSignals, WitnessTester } from "circomkit";
 import { circomkit } from "./common";
 import { INPUT_SIGNALS, MAX_DEPTH, mockPassportData } from "./common/passportData";
-import assert from "node:assert";
 
 const PARAMS = [256, 192];
 const EXPIRY_DATE_OFFSET = 70;
 
-describe("passport_verification", () => {
+describe("PassportVerification", () => {
     let circuit: WitnessTester;
     let mockData: CircuitSignals<INPUT_SIGNALS>;
     before(async () => {
-        circuit = await circomkit.WitnessTester("passport_verification", {
+        circuit = await circomkit.WitnessTester("PassportVerification", {
             file: "passport_verification",
             template: "PassportVerification",
             params: PARAMS,
@@ -18,11 +17,6 @@ describe("passport_verification", () => {
 
         mockData = JSON.parse(JSON.stringify(mockPassportData));
         mockData.current_timestamp = `${Math.floor((new Date).getTime() / 1000) + 3600 * 12}`;
-    });
-
-    it("dateBytesToTimestamp should correctly convert date to timestamp", async () => {
-        const timestamp = dateBytesToTimestamp(["51", "50", "48", "55", "49", "51"]);
-        assert(timestamp === Math.floor(new Date("2032-07-13").getTime() / 1000));
     });
 
     it("should pass mock verification", async () => {
