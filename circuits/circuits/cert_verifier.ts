@@ -7,7 +7,7 @@ const execAsync = util.promisify(exec);
 
 
 //Verify the corresponding public key of the certificate used to sign the passport is a valid DS certificate public key
-const pubCheck = execAsync(`openssl x509 -modulus -noout -in myserver.crt | openssl md5`);
+const pubCheck = execAsync('openssl x509 -modulus -noout -in myserver.crt | openssl md5');
 
 //Verify the corresponding public key of the certificate used to sign the DS certificate is a valid CSCA certificate
-const DSCheck = execAsync(`openssl verify -CAfile CSCA_Certificate.crt -untrusted DS_Certificate.crt`);
+const DSCheck = execAsync('openssl verify -CAfile CSCA_Certificate.crt -untrusted DS_Certificate.crt');
