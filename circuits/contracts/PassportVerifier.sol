@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 interface IRegistry {
-    function getRoot() external view returns (uint256);
+    function getDSRoot() external view returns (uint256);
 }
 
 interface IVerifier {
@@ -24,11 +24,11 @@ contract PassportVerifier {
     // the zk proof verifier contract
     IVerifier public immutable VERIFIER;
     // the DS registry contract which tracks the merkle tree of valid DS certificates
-    IRegistry public immutable DS_REGISTRY;
+    IRegistry public immutable REGISTRY;
 
-    constructor (address _verifier, address _dsRegistry) {
+    constructor (address _verifier, address _registry) {
         VERIFIER = IVerifier(_verifier);
-        DS_REGISTRY = IRegistry(_dsRegistry);
+        REGISTRY = IRegistry(_registry);
     }
 
     /// @notice Verifies a passport validity proof
@@ -37,7 +37,7 @@ contract PassportVerifier {
     ///                     valid after this block
     /// @return             True if the proof is valid, false otherwise
     function verifyPassport(PassportProof calldata _proof, uint256 _timeBuffer) external view returns (bool) {
-        if (_proof.expectedRoot != DS_REGISTRY.getRoot())
+        if (_proof.expectedRoot != REGISTRY.getDSRoot())
             return false;
         
         if (_proof.currentTimestamp < block.timestamp + _timeBuffer)

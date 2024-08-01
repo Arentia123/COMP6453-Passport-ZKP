@@ -1,7 +1,7 @@
 import { CircuitSignals } from "circomkit";
 import { SignalValueType } from "circomkit/dist/types";
 import { poseidon9 } from "poseidon-lite";
-import { generateBinaryMerkleRoot } from "./imtProofGen";
+import { generateBinaryMerkleRoot } from "../../scripts/utils/imtProofGen";
 
 type INPUT_SIGNALS = [
     "dg1", "preecontent", "econtent", "pubkey", "sig", "dg1_offset",

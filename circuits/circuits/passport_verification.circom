@@ -1,11 +1,10 @@
 pragma circom 2.1.2;
 
-include "@zk-email/circuits/lib/rsa.circom";
 include "@zk-email/circuits/lib/sha.circom";
 include "@zk-email/circuits/utils/array.circom";
-include "circomlib/circuits/poseidon.circom";
 include "circomlib/circuits/comparators.circom";
-include "./binary_merkle_root.circom";
+include "./issuer_verify.circom";
+include "./rsa_verify.circom";
 include "./utils/date_to_timestamp.circom";
 include "./utils/sha256.circom";
 include "./utils/pack_chunks.circom";
@@ -56,22 +55,7 @@ template PassportVerification(max_preecontent_size, max_econtent_size) {
     signal expiry_timestamp_gt_current <== GreaterThan(64)([expiry_timestamp, current_timestamp]);
     expiry_timestamp_gt_current === 1;
 
-    // check assumption for BinaryMerkleRoot (depth <= max_depth)
-    var max_depth_bits = 0;
-    var max_depth_temp = max_depth;
-    while (max_depth_temp > 0) {
-        max_depth_temp >>= 1;
-        max_depth_bits++;
-    }
-    signal depth_lte_max_depth <== LessEqThan(max_depth_bits)([depth, max_depth]);
-    depth_lte_max_depth === 1;
-
-    // pack pubkey into 9 field elements since Poseidon circuit only supports
-    // max 16 elements
-    signal pubkey_packed[9] <== PackChunks(121, 17)(pubkey);
-    signal leaf <== Poseidon(9)(pubkey_packed);
-    signal root <== BinaryMerkleRoot(max_depth)(leaf, depth, indices, siblings);
-    root === expected_root;
+    IssuerVerify(max_depth, n, k)(pubkey, expected_root, depth, indices, siblings);
 
     // verify dg1 hash matches the one in pre_econtent
     signal dg1_hash[hash_size] <== Sha256BytesOutBytes(dg1_size)(dg1);
@@ -89,28 +73,6 @@ template PassportVerification(max_preecontent_size, max_econtent_size) {
 
     signal econtent_hash[hash_size * 8] <== Sha256Bytes(max_econtent_size)(econtent, econtent_size);
 
-    // chunk econtent_hash for input to rsa verifier
-    // modified from https://github.com/zkemail/zk-email-verify/blob/main/packages/circuits/email-verifier.circom
-    var rsa_msg_size = (256 + n) \ n;
-    component rsa_msg[rsa_msg_size];
-    for (var i = 0; i < rsa_msg_size; i++) {
-        rsa_msg[i] = Bits2Num(n);
-    }
-    for (var i = 0; i < 256; i++) {
-        rsa_msg[i \ n].in[i % n] <== econtent_hash[255 - i];
-    }
-    for (var i = 256; i < n * rsa_msg_size; i++) {
-        rsa_msg[i \ n].in[i % n] <== 0;
-    }
-
     // verify the signature
-    component rsa_verifier = RSAVerifier65537(n, k);
-    for (var i = 0; i < rsa_msg_size; i++) {
-        rsa_verifier.message[i] <== rsa_msg[i].out;
-    }
-    for (var i = rsa_msg_size; i < k; i++) {
-        rsa_verifier.message[i] <== 0;
-    }
-    rsa_verifier.modulus <== pubkey;
-    rsa_verifier.signature <== sig;    
+    RSAVerify(n, k)(econtent_hash, pubkey, sig);
 }

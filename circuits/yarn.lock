@@ -928,6 +928,13 @@
   resolved "https://registry.npmjs.org/@types/mocha/-/mocha-10.0.1.tgz"
   integrity sha512-/fvYntiO1GeICvqbQ3doGDIP97vWmvFt83GKguJ6prmQM2iXZfFcq6YE8KteFyRtX2/h5Hf91BYvPodJKFYv5Q==
 
+"@types/node-forge@^1.3.11":
+  version "1.3.11"
+  resolved "https://registry.npmjs.org/@types/node-forge/-/node-forge-1.3.11.tgz"
+  integrity sha512-FQx220y22OKNTqaByeBGqHWYz4cl94tpcxeFdvBo3wjG6XPBuZ0BNgNZRV5J5TFmmcsJ4IzsLkmGRiQbnYsBEQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/node@*", "@types/node@^20.3.0", "@types/node@>=18.0.0":
   version "20.3.0"
   resolved "https://registry.npmjs.org/@types/node/-/node-20.3.0.tgz"
@@ -992,6 +999,13 @@
   dependencies:
     commander "^11.0.0"
     snarkjs "^0.7.0"
+
+"@zk-kit/lean-imt.sol@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/@zk-kit/lean-imt.sol/-/lean-imt.sol-2.0.0.tgz"
+  integrity sha512-e9pAm+IXveLPy7b1h05ipIo6U44vp8g/2E+Ocx3PIloMu7lgTXFkIeZj/qZ/iLgEMsF74T0dsg7aVIT0B0nsDA==
+  dependencies:
+    poseidon-solidity "0.0.5"
 
 "@zk-kit/lean-imt@^2.0.1":
   version "2.0.1"
@@ -3107,6 +3121,11 @@ node-emoji@^1.10.0:
   dependencies:
     lodash "^4.17.21"
 
+node-forge@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.npmjs.org/node-forge/-/node-forge-1.3.1.tgz"
+  integrity sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==
+
 node-gyp-build@^4.2.0:
   version "4.8.1"
   resolved "https://registry.npmjs.org/node-gyp-build/-/node-gyp-build-4.8.1.tgz"
@@ -3281,6 +3300,11 @@ poseidon-lite@^0.2.0:
   version "0.2.0"
   resolved "https://registry.npmjs.org/poseidon-lite/-/poseidon-lite-0.2.0.tgz"
   integrity sha512-vivDZnGmz8W4G/GzVA72PXkfYStjilu83rjjUfpL4PueKcC8nfX6hCPh2XhoC5FBgC6y0TA3YuUeUo5YCcNoig==
+
+poseidon-solidity@0.0.5:
+  version "0.0.5"
+  resolved "https://registry.npmjs.org/poseidon-solidity/-/poseidon-solidity-0.0.5.tgz"
+  integrity sha512-NzrvSwHzvZgT4hvg2GyGqeR+UOU/eLSEt4wAoXEua+VaR7NTKKwx1X9bPlh1VMBEVEno+IWvkRBbidFGzTeAqQ==
 
 prelude-ls@~1.1.2:
   version "1.1.2"
