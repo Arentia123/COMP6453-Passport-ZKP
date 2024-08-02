@@ -1,17 +1,32 @@
+## Requirements
+
+If starting from scratch (with circuit compilation, proof generation
+wasm creation, proving key generation, and verification contract generation),
+circom 2.0 needs to be installed.
+
 ## Setup
 
-Proof creation components and verification components need to be setup before
-running the tests. The command below creates the proof generation wasm, proving 
+```sh
+npm install
+```
+
+If you want to avoid downloading some very large files (for groth16 setup 
+phase 1 Powers of Tau) and use the existing verifier contracts, you can download 
+the proof generation wasms and proving keys from google drive 
+[here](https://drive.google.com/drive/folders/1AJoyD2uBk3rSHQ8KKiaeFxfMmfuD8acB?usp=sharing). 
+After moving the proofs folder into ./proofs, you can skip the rest of setup.
+
+Otherwise, proof generation components and verification components need to be setup before
+running anything. The command below creates the proof generation wasm, proving 
 key, and corresponding verifier contract for each circuit configured in 
 `circuits.json` and places them in `./proofs` and `./contracts`.
 
-NOTE: This requires downloading some large files for the first phase of the key
+WARNING: This requires downloading some large files for the first phase of the key
 generation (possibly more than 1 GB) - the proving keys and wasm files generated
 will take up further space (approx 0.5 GB). If the provided verifier contracts are used,
 the key and wasm files uploaded using git lfs must be downloaded.
 
 ```sh
-npm install
 yarn start
 ```
 
@@ -29,6 +44,16 @@ npx hardhat test <testfile-path>
 ```
 
 ### Proof generation and onchain interactions
+
+The expected directory structure is as follows:
+
+- CSCA certificates in ./scripts/certs/csca/
+- DS certificates in ./scripts/certs/ds/
+- CSCA private keys in ./scripts/keys/csca/
+- DS private keys in ./scripts/keys/ds/
+- Proof generation wasm and proving key in ./proofs/<circuit-name>
+
+All certificates and keys used should be in PEM format.
 
 Passport data fields are base64 encoded DER encodings of the relevant information
 extracted from the passport chip. 
