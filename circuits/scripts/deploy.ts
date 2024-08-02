@@ -3,7 +3,7 @@ import { genCertProof, calcLeaf, getPubkey } from "./genProof";
 import { CERT_DIR, DEFAULT_CA_CERT, DEFAULT_DS_CERT } from "./constants";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
-const deploy = async (hre: HardhatRuntimeEnvironment) => {
+const deploy = async (args: any, hre: HardhatRuntimeEnvironment) => {
     // setup PKI - all CSCA certificates in certs/csca and DS certificates in certs/ds
     const cscaFiles = await fs.readdir(`${CERT_DIR}/csca`);
     let dsSignerPubkeyLeaf = 0n;

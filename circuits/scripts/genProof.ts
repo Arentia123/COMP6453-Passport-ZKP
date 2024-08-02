@@ -3,7 +3,6 @@ import fs from "fs/promises";
 import { poseidon9 } from "poseidon-lite";
 import { generateBinaryMerkleRoot } from "./utils/imtProofGen";
 import { groth16 } from "snarkjs";
-import assert from "assert";
 import { K, N, MAX_ECONTENT_SIZE, MAX_PREECONTENT_SIZE, MAX_DEPTH, MAX_TBS_CERT_SIZE } from "./constants";
 
 // chunk into k n bit chunks
@@ -167,13 +166,17 @@ const genMRZ = (
     issuingState = "AUS", firstname = "JOHN", surname = "DOE", docNumber = "RA1234567",
     nationality = "AUS", dob = "000101", sex = "M", expiryDate = "320101"
 ) => {
-    assert(issuingState.length == 3);
-    assert(firstname.length + surname.length <= 37);
-    assert(docNumber.length == 9);
-    assert(nationality.length == 3);
-    assert(dob.length == 6);
-    assert(sex.length == 1);
-    assert(expiryDate.length == 6);
+    if (
+        issuingState.length !== 3
+        || firstname.length + surname.length > 37
+        || docNumber.length !== 9
+        || nationality.length !== 3
+        || dob.length !== 6
+        || sex.length !== 1
+        || expiryDate.length !== 6
+    ) 
+        throw new Error("Invalid MRZ inputs");
+
     const names = surname + "<<" + firstname + '<'.repeat(39 - (firstname.length + surname.length + 2));
     const upperLine = "P<" + issuingState + names;
     let lowerLine = docNumber + getCheckDigit(docNumber) + nationality + dob 
@@ -190,6 +193,7 @@ type PassportData = {
     "econtent": string,
     "sig": string,
     "cert": string,
+    [key: string]: any
 };
 
 const genRandomPassportData = async ( 
@@ -198,6 +202,9 @@ const genRandomPassportData = async (
     nationality = "AUS", dob = "000101", sex = "M", dg1Offset = 29, 
     preecontentSize = 233, preecontentOffset = 42, econtentSize = 74
 ) => {
+    if (dg1Offset + 32 > preecontentSize || preecontentOffset + 32 > econtentSize)
+        throw new Error("Invalid offsets");
+
     let mrz = genMRZ(
         issuingState, firstname, surname, docNumber, nationality, dob, sex, expiryDate
     );
@@ -272,7 +279,8 @@ const genPassportProof = async (
 
     // check that our public key is correct
     const pk = forge.pki.setRsaPublicKey(n, new forge.jsbn.BigInteger("65537"));
-    assert(pk.verify(digest.digest().getBytes(), sig));
+    if (!pk.verify(digest.digest().getBytes(), sig))
+        throw new Error("Invalid signature with given certificate pubkey");
 
     preecontent = sha256Pad(forge.util.bytesToHex(preecontent));
     econtent = sha256Pad(forge.util.bytesToHex(econtent));
@@ -287,7 +295,7 @@ const genPassportProof = async (
         "preecontent_size": (preecontent.length / 2).toString(),
         "preecontent_offset": preecontentOffset.toString(),
         "econtent_size": (econtent.length / 2).toString(),
-        "current_timestamp": currentTimestamp.toString()
+        "current_timestamp": currentTimestamp.toString(),
     };
 
     addPoM(inputs, dsLeaves, dsIdx);
