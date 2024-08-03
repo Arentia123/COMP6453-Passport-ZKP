@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getDeployment } from "./deployment";
-import fs from "fs/promises";
+import { writeFile } from "./utils/file";
 
 const exportState = async (args: any, hre: HardhatRuntimeEnvironment) => {
     const dep = await getDeployment(hre);
@@ -20,7 +20,7 @@ const exportState = async (args: any, hre: HardhatRuntimeEnvironment) => {
         revoker: revoker,
     };
 
-    await fs.writeFile(args.out, JSON.stringify(state, null, 4));
+    await writeFile(args.out, JSON.stringify(state, null, 4));
     console.log("State written to", args.out);
 };
 

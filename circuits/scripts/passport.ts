@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import forge from "node-forge";
 import { getDeployment } from "./deployment";
 import { genRandomPassportData, genPassportProof, calcLeaf, PassportData } from "./genProof";
+import { writeFile } from "./utils/file";
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -12,7 +13,7 @@ const genPassport = async (args: any) => {
         args.dg1Offset, args.preecontentSize, args.preecontentOffset, 
         args.econtentSize
     );
-    await fs.writeFile(args.out, JSON.stringify(passportData, null, 4));
+    await writeFile(args.out, JSON.stringify(passportData, null, 4));
     console.log("Passport written to", args.out);
 };
 
@@ -20,7 +21,7 @@ const provePassport = async (args: any, hre: HardhatRuntimeEnvironment) => {
     const passportData: PassportData = JSON.parse(await fs.readFile(args.passport, "utf-8"));
 
     const mrz = forge.util.decode64(passportData.dg1);
-    console.log("Passport MRZ:\n")
+    console.log("Passport MRZ:")
     console.log(mrz.slice(5, 49));
     console.log(mrz.slice(49, 93));
 
@@ -40,7 +41,7 @@ const provePassport = async (args: any, hre: HardhatRuntimeEnvironment) => {
     const proof = await genPassportProof(passportData, currTime + 100, dsLeaves, dsIdx);
     console.log(`Proof generation took ${Math.floor((Date.now() - proofGenStartTime) / 1000)} seconds`);
 
-    await fs.writeFile(args.out, JSON.stringify(proof, null, 4));
+    await writeFile(args.out, JSON.stringify(proof, null, 4));
     console.log("Proof written to", args.out);
 };
 

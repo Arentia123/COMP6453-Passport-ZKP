@@ -5,6 +5,11 @@
 - For `contracts`, see below
 - For `circuits`, Circom - https://docs.circom.io/getting-started/installation/ and `node.js`
 
+### Circuits + Full Demo
+
+For the zk circuits and the demo of the system, go to the `circuits` (and work
+from there).
+
 ### Contracts
 #### Setup
 `npm install`

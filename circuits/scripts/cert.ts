@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getDeployment } from "./deployment";
 import { calcLeaf, genCertProof, getPubkey } from "./genProof";
+import { writeFile } from "./utils/file";
 import forge from "node-forge";
 import fs from "fs/promises";
 
@@ -28,9 +29,11 @@ const genCert = async (args: any) => {
     const issuerKey = forge.pki.privateKeyFromPem(await fs.readFile(args.key, "utf-8"));
     cert.sign(issuerKey, forge.md.sha256.create());
 
-    await fs.writeFile(args.out, forge.pki.certificateToPem(cert));
+    await writeFile(args.outCert, forge.pki.certificateToPem(cert));
+    await writeFile(args.outKey, forge.pki.privateKeyToPem(key.privateKey));
 
-    console.log("Certificate written to", args.out);
+    console.log("Certificate written to", args.outCert);
+    console.log("Private key written to", args.outKey);
 };
 
 const addCert = async (args: any, hre: HardhatRuntimeEnvironment) => {
