@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { getDeployment } from "./deployment";
 import { writeFile } from "./utils/file";
+import { time } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 
 const exportState = async (args: any, hre: HardhatRuntimeEnvironment) => {
     const dep = await getDeployment(hre);
@@ -9,6 +10,7 @@ const exportState = async (args: any, hre: HardhatRuntimeEnvironment) => {
     const caLeaves = (await dep.certificateRegistry.getAllCALeaves()).map(leaf => leaf.toString());
     const dsLeaves = (await dep.certificateRegistry.getAllDSLeaves()).map(leaf => leaf.toString());
     const revoker = await dep.certificateRegistry.revoker();
+    const blockTime = await time.latest();
 
     const state = {
         caRoot: caRoot.toString(),
@@ -18,6 +20,7 @@ const exportState = async (args: any, hre: HardhatRuntimeEnvironment) => {
         numDSs: dsLeaves.length.toString(),
         dsLeaves: dsLeaves,
         revoker: revoker,
+        latestBlockTime: blockTime,
     };
 
     await writeFile(args.out, JSON.stringify(state, null, 4));
