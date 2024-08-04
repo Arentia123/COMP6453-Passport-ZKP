@@ -9,6 +9,7 @@ be installed.
 
 ```sh
 npm install
+npx hardhat compile
 ```
 
 If you want to avoid downloading some very large files (for groth16 setup 
@@ -36,6 +37,7 @@ the key and wasm files uploaded using git lfs must be downloaded.
 
 ```sh
 yarn start
+npx hardhat compile
 ```
 
 ## Testing
@@ -66,6 +68,9 @@ All certificates and keys used should be in PEM format.
 
 Passport data fields are base64 encoded DER encodings of the relevant information
 extracted from the passport chip. 
+
+Note that time is relative to the timestamp of the local testnet, which does
+not have to necessarily correspond with actual unix time.
 
 WARNING: Do not create new files in `./scripts` with names (the part excluding the period + extension)
 that overlap with the files in `./scripts`. This could cause issues where hardhat
