@@ -20,6 +20,7 @@ describe("PassportVerifier", () => {
     const getProofInput = () => JSON.parse(JSON.stringify(proofInput));
 
     before(async () => {
+        mockPassportData.current_timestamp = (await time.latest()) + 172800;
         const { proof, publicSignals } = await groth16.fullProve(
             mockPassportData, 
             `${PROOFS_DIR}/PassportVerification.wasm`, 
@@ -43,23 +44,23 @@ describe("PassportVerifier", () => {
         const PassportVerifier = await hre.ethers.getContractFactory("PassportVerifier");
 
         const registryRoot = BigInt(mockPassportData.expected_root.toString());
-        const dsRegistry = await MockRegistry.deploy(registryRoot);
+        const registry = await MockRegistry.deploy(registryRoot);
         const verifier = await PassportProofVerifier.deploy();
         const passportVerifier = await PassportVerifier.deploy(
             await verifier.getAddress(), 
-            await dsRegistry.getAddress()
+            await registry.getAddress()
         );
 
-        return { passportVerifier, verifier, dsRegistry };
+        return { passportVerifier, verifier, registry };
     }
 
     it("should set the right verifier and registry", async () => {
-        const { passportVerifier, verifier, dsRegistry } = await loadFixture(deployPassportVerifierFixture);
+        const { passportVerifier, verifier, registry } = await loadFixture(deployPassportVerifierFixture);
 
         expect(await passportVerifier.VERIFIER()).to.equal(await verifier.getAddress());
-        expect(await passportVerifier.REGISTRY()).to.equal(await dsRegistry.getAddress());
+        expect(await passportVerifier.REGISTRY()).to.equal(await registry.getAddress());
         // to ensure registry root is correct for mock
-        expect(await dsRegistry.getRoot()).to.equal(mockPassportData.expected_root);
+        expect(await registry.getDSRoot()).to.equal(mockPassportData.expected_root);
     });
 
     it("should verify with correct proof", async () => {
@@ -67,6 +68,9 @@ describe("PassportVerifier", () => {
         expect(await passportVerifier.verifyPassport(proofInput, "0x0")).to.be.true;
     });
 
+    // two tests below relating to the early error conditions will not take 
+    // as long due to not having to verify the proof (that's how we know it isn't
+    // the proof failing due to wrong inputs)
     it("should fail if the expected_root does not match dsRegistry", async () => {
         const { passportVerifier } = await loadFixture(deployPassportVerifierFixture);
         const input = getProofInput();
@@ -84,7 +88,7 @@ describe("PassportVerifier", () => {
     it("should succeed if the timestamp proven for is exactly the block time", async () => {
         const { passportVerifier } = await loadFixture(deployPassportVerifierFixture);
         const currTime = BigInt(mockPassportData.current_timestamp.toString());
-        await time.setNextBlockTimestamp(currTime);
+        await time.increaseTo(currTime);
         expect(await passportVerifier.verifyPassport(proofInput, "0x0")).to.be.true;
     });
 });

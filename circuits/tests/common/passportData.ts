@@ -43,7 +43,7 @@ const mockPassportData: CircuitSignals<INPUT_SIGNALS> = {
 	"preecontent_size": "256",
 	"preecontent_offset": "42",
 	"econtent_size": "128",
-	"current_timestamp": `${Math.floor(Date.now() / 1000) + 3600 * 12}`,
+	"current_timestamp": `${Math.floor(Date.now() / 1000) + 172800}`,
 	// inserted by addPoM
 	"expected_root": "0",
 	"depth": "0",

@@ -48,6 +48,7 @@ yarn test
 yarn test -g <circuit-name>
 
 # integration tests with onchain components
+npx hardhat node
 npx hardhat test <testfile-path>
 ```
 
