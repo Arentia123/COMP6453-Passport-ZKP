@@ -125,3 +125,16 @@ npx hardhat provePassport --passport ./passports/passport.json --time $(echo "$(
 # verify the passport (using the generated proof)
 npx hardhat verifyPassport --proof ./passports/proof.json --time-buffer 0
 ```
+
+### Some known limitations
+
+- Passport proofs can be reused once submitted on-chain, a mechanism for preventing this
+has not been integrated yet
+- Conversion of the expiry date in the MRZ assumes that all dates with year >= 70
+refer to the 1900s, which seems reasonable as e-passports were only introduced
+in the early 2000s
+- Conversion of the date of birth in the MRZ assumes that all dates with year >= 35
+refer to the 1900s - this is a pretty big limitation which would require regular 
+adjustment of the circuit and consequently the verifier contract
+
+

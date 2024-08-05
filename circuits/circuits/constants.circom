@@ -4,6 +4,14 @@ function get_dg1_size() {
     return 93;
 }
 
+function get_nationality_offset() {
+    return 59;
+}
+
+function get_dob_offset() {
+    return 62;
+}
+
 function get_expiry_date_offset() {
     return 70;
 }
