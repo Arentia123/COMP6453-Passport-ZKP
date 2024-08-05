@@ -52,6 +52,9 @@ contract CertificateRegistry {
     }
 
     function addCA_Certificate(ICertVerifier.CertProof calldata proof_) public{
+        if (deleted_CA[proof_.certPubkeyHash])
+            revert("Certificate has been revoked");
+
         if (LeanIMT.has(CA_tree, proof_.certPubkeyHash))
             revert("Certificate has been added before");
 
@@ -64,6 +67,9 @@ contract CertificateRegistry {
     }
 
     function addDS_Certificate(ICertVerifier.CertProof calldata proof_) public {
+        if (deleted_DS[proof_.certPubkeyHash])
+            revert("Certificate has been revoked");
+
         if (LeanIMT.has(DS_tree, proof_.certPubkeyHash))
             revert("Certificate has been added before");
         
@@ -75,14 +81,16 @@ contract CertificateRegistry {
         LeanIMT.insert(DS_tree,proof_.certPubkeyHash);
     }
 
-    // Removing a node from a merkle tree takes huge hash computation,so I maintained a internal array to judge.
-    function removeCA_Certificate(uint256 CA_public_) onlyRevoker() public {
+    // the node must also be removed from the tree because passport verification
+    // uses the root to check membership
+    function removeCA_Certificate(uint256 CA_public_, uint256[] calldata siblingNodes) onlyRevoker() public {
         if (deleted_CA[CA_public_])
             revert("Certificate has been deleted before");
         
         if (!LeanIMT.has(CA_tree, CA_public_))
             revert("Non-existing certificate");
         
+        LeanIMT.remove(CA_tree, CA_public_, siblingNodes);
         deleted_CA[CA_public_]=true;
     }
 
@@ -90,13 +98,14 @@ contract CertificateRegistry {
     // corresponding to the issuing CSCA certificate for every DS certificate,
     // then use a circuit to prove inclusion in a CRL signed by the issuing CSCA
     // however, for now we have a trusted revoker
-    function removeDS_Certificate(uint256 DS_public_) onlyRevoker() public {
+    function removeDS_Certificate(uint256 DS_public_, uint256[] calldata siblingNodes) onlyRevoker() public {
         if (deleted_DS[DS_public_])
             revert("Certificate has been deleted before");
         
         if (!LeanIMT.has(DS_tree, DS_public_))
             revert("Non-existing certificate");
 
+        LeanIMT.remove(DS_tree, DS_public_, siblingNodes);
         deleted_DS[DS_public_]=true;
     }
 
