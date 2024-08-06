@@ -3,12 +3,18 @@
         "file": "passport_verification",
         "template": "PassportVerification",
         "pubs": ["expected_root", "current_timestamp"],
-        "params": [1024]
+        "params": [256, 192]
     },
     "CertVerification": {
         "file": "cert_verification",
         "template": "CertVerification",
         "pubs": ["expected_root"],
         "params": [1024]
+    },
+    "PassportPropVerification": {
+        "file": "passport_prop_verification",
+        "template": "PassportPropVerification",
+        "pubs": ["expected_root", "current_timestamp", "required_age", "allowed_nationality"],
+        "params": [256, 192]
     }
 }

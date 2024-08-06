@@ -253,10 +253,11 @@ type PassportInputs = {
     preecontent_size: string,
     preecontent_offset: string,
     econtent_size: string,
-    current_timestamp: string
+    current_timestamp: string,
+    [key: string]: any
 };
 
-const genPassportProof = async (
+const genPassportProofInputs = async (
     passportData: PassportData, currentTimestamp: number, dsLeaves: string[], dsIdx: number
 ) => {
     const dg1 = forge.util.decode64(passportData["dg1"]);
@@ -300,6 +301,14 @@ const genPassportProof = async (
 
     addPoM(inputs, dsLeaves, dsIdx);
 
+    return inputs;
+}
+
+const genPassportProof = async (
+    passportData: PassportData, currentTimestamp: number, dsLeaves: string[], dsIdx: number
+) => {
+    const inputs = await genPassportProofInputs(passportData, currentTimestamp, dsLeaves, dsIdx);
+
     const calldata = await genCalldata(
         inputs,
         "./proofs/PassportVerification/PassportVerification.wasm",
@@ -315,4 +324,32 @@ const genPassportProof = async (
     };
 }
 
-export { genCertProof, calcLeaf, getPubkey, genRandomPassportData, genPassportProof, PassportData };
+const genPassportPropProof = async (
+    passportData: PassportData, currentTimestamp: number, dsLeaves: string[], dsIdx: number,
+    requiredAge: number, allowedNationality: string
+) => {
+    const inputs = await genPassportProofInputs(passportData, currentTimestamp, dsLeaves, dsIdx);
+    inputs.required_age = requiredAge.toString();
+    inputs.allowed_nationality = allowedNationality.split('').map(c => c.charCodeAt(0).toString());
+
+    const calldata = await genCalldata(
+        inputs,
+        "./proofs/PassportPropVerification/PassportPropVerification.wasm",
+        "./proofs/PassportPropVerification/PassportPropVerification.zkey"
+    );
+
+    return {
+        a: calldata[0],
+        b: calldata[1],
+        c: calldata[2],
+        expectedRoot: calldata[3][0],
+        currentTimestamp: calldata[3][1],
+        requiredAge: calldata[3][2],
+        allowedNationality: calldata[3].slice(3)
+    };
+}
+
+export { 
+    genCertProof, calcLeaf, getPubkey, genRandomPassportData, genPassportProof, 
+    genPassportPropProof, PassportData 
+};

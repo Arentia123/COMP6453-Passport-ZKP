@@ -42,23 +42,27 @@ describe("PassportVerifier", () => {
         const MockRegistry = await hre.ethers.getContractFactory("MockRegistry");
         const PassportProofVerifier = await hre.ethers.getContractFactory("PassportVerificationVerifier");
         const PassportVerifier = await hre.ethers.getContractFactory("PassportVerifier");
+        const PassportPropProofVerifier = await hre.ethers.getContractFactory("PassportPropVerificationVerifier");
 
         const registryRoot = BigInt(mockPassportData.expected_root.toString());
         const registry = await MockRegistry.deploy(registryRoot);
         const verifier = await PassportProofVerifier.deploy();
+        const propVerifier = await PassportPropProofVerifier.deploy();
         const passportVerifier = await PassportVerifier.deploy(
             await verifier.getAddress(), 
-            await registry.getAddress()
+            await registry.getAddress(),
+            await propVerifier.getAddress()
         );
 
-        return { passportVerifier, verifier, registry };
+        return { passportVerifier, verifier, registry, propVerifier };
     }
 
     it("should set the right verifier and registry", async () => {
-        const { passportVerifier, verifier, registry } = await loadFixture(deployPassportVerifierFixture);
+        const { passportVerifier, verifier, registry, propVerifier } = await loadFixture(deployPassportVerifierFixture);
 
         expect(await passportVerifier.VERIFIER()).to.equal(await verifier.getAddress());
         expect(await passportVerifier.REGISTRY()).to.equal(await registry.getAddress());
+        expect(await passportVerifier.PROP_VERIFIER()).to.equal(await propVerifier.getAddress());
         // to ensure registry root is correct for mock
         expect(await registry.getDSRoot()).to.equal(mockPassportData.expected_root);
     });

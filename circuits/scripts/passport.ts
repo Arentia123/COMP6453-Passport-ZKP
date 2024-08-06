@@ -1,7 +1,13 @@
 import fs from "fs/promises";
 import forge from "node-forge";
 import { getDeployment } from "./deployment";
-import { genRandomPassportData, genPassportProof, calcLeaf, PassportData } from "./genProof";
+import { 
+    genRandomPassportData, 
+    genPassportProof, 
+    calcLeaf, 
+    genPassportPropProof,
+    PassportData 
+} from "./genProof";
 import { writeFile } from "./utils/file";
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -38,7 +44,18 @@ const provePassport = async (args: any, hre: HardhatRuntimeEnvironment) => {
     console.log("Generating passport proof...");
     const currTime = Number(args.time);
     const proofGenStartTime = Date.now();
-    const proof = await genPassportProof(passportData, currTime + 100, dsLeaves, dsIdx);
+    let proof: any;
+    if (args.requiredAge)
+        proof = await genPassportPropProof(
+            passportData, 
+            currTime + 100, 
+            dsLeaves, 
+            dsIdx, 
+            args.requiredAge, 
+            args.allowedNationality
+        );
+    else
+        proof = await genPassportProof(passportData, currTime + 100, dsLeaves, dsIdx);
     console.log(`Proof generation took ${Math.floor((Date.now() - proofGenStartTime) / 1000)} seconds`);
 
     await writeFile(args.out, JSON.stringify(proof, null, 4));
@@ -49,9 +66,24 @@ const provePassport = async (args: any, hre: HardhatRuntimeEnvironment) => {
 const verifyPassport = async (args: any, hre: HardhatRuntimeEnvironment) => {
     const proof = JSON.parse(await fs.readFile(args.proof, "utf-8"));
     const dep = await getDeployment(hre);
-    const res = await dep.passportVerifier.verifyPassport(proof, args.timeBuffer);
-    if (!res)
-        throw new Error("Passport verification failed");
+    if (args.type === "prop") {
+        const passportProof = {
+            a: proof.a,
+            b: proof.b,
+            c: proof.c,
+            expectedRoot: proof.expectedRoot,
+            currentTimestamp: proof.currentTimestamp,
+        };
+        try {
+            await dep.passportVerifier.verifyPassport(passportProof, args.timeBuffer, proof.requiredAge, proof.allowedNationality);
+        } catch (e) {
+            throw new Error("Passport verification failed");
+        }
+    } else {
+        const res = await dep.passportVerifier.verifyPassport(proof, args.timeBuffer);
+        if (!res)
+            throw new Error("Passport verification failed");
+    }
 
     console.log("Passport verified!");
 };

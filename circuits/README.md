@@ -124,12 +124,20 @@ npx hardhat genPassport --cert ./scripts/certs/ds/ds1.pem --key ./scripts/keys/d
 npx hardhat provePassport --passport ./passports/passport.json --time $(echo "$(($(date +%s) + 172800))") --out ./passports/proof.json
 # verify the passport (using the generated proof)
 npx hardhat verifyPassport --proof ./passports/proof.json --time-buffer 0
+
+# with property verification
+# generate a proof with verification of required age and nationality
+npx hardhat provePassport --passport ./passports/passport.json --time $(echo "$(($(date +%s) + 172800))") --out ./passports/proof.json --required-age 18 --allowed-nationality AUS
+# verify the proof (verification will fail after the first time)
+npx hardhat verifyPassport --proof ./passports/proof.json --time-buffer 0 --type prop
 ```
 
 ### Some known limitations
 
 - Passport proofs can be reused once submitted on-chain, a mechanism for preventing this
-has not been integrated yet
+has not been integrated yet (passport verification with property presents a potential
+solution, but it does not prevent cross-chain replay attacks in the case the system
+is deployed on other evm chains)
 - Conversion of the expiry date in the MRZ assumes that all dates with year >= 70
 refer to the 1900s, which seems reasonable as e-passports were only introduced
 in the early 2000s

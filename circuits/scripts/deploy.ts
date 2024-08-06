@@ -30,9 +30,10 @@ const deploy = async (args: any, hre: HardhatRuntimeEnvironment) => {
         { libraries: { LeanIMT: await leanImt.getAddress() } }
     );
     const pVV = await hre.ethers.deployContract("PassportVerificationVerifier");
+    const ppVV = await hre.ethers.deployContract("PassportPropVerificationVerifier");
     const pV = await hre.ethers.deployContract(
         "PassportVerifier", 
-        [await pVV.getAddress(), await cR.getAddress()]
+        [await pVV.getAddress(), await cR.getAddress(), await ppVV.getAddress()]
     );
 
     const contractAddresses = {
@@ -43,6 +44,7 @@ const deploy = async (args: any, hre: HardhatRuntimeEnvironment) => {
         CertificateRegistry: await cR.getAddress(),
         PassportVerificationVerifier: await pVV.getAddress(),
         PassportVerifier: await pV.getAddress(),
+        PassportPropVerificationVerifier: await ppVV.getAddress()
     };
 
     for (const [contract, addr] of Object.entries(contractAddresses))

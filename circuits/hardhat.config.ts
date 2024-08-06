@@ -28,10 +28,13 @@ task("provePassport", "Generate a passport proof")
     .addParam("passport", "Path to a JSON file containing passport data")
     .addParam("time", "UTC unix timestamp in seconds to prove at")
     .addParam("out", "Path to the output JSON file")
+    .addOptionalParam("requiredAge", "Minimum age of the passport holder")
+    .addOptionalParam("allowedNationality", "3 letter code of required nationality")
     .setAction(provePassport);
 task("verifyPassport", "Prove a passport")
     .addParam("proof", "Path to a JSON file containing passport data")
     .addParam("timeBuffer", "Buffer in seconds after which passport must be valid")
+    .addOptionalParam("type", "Type of passport proof (normal or prop (with property checks))")
     .setAction(verifyPassport);
 task("genCert", "Generate a certificate")
     .addParam("type", "Type of certificate (csca or ds)")
