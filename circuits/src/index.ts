@@ -1,28 +1,53 @@
-import { Circomkit } from "circomkit";
+import { CircuitConfig } from "circomkit";
+import { getCircomkit } from "./circomkit";
+import fs from "fs";
+
+const CIRCUITS_CFG_PATH = "./circuits.json";
+
+const CONTRACTS_DIR = "./contracts";
+const PROOFS_DIR = "./proofs";
+
+const renameFile = async (oldPath: string, newDir: string, newFilename: string) => {
+    await fs.promises.rename(oldPath, `${newDir}/${newFilename}`);
+};
 
 async function main() {
-  // create circomkit
-  const circomkit = new Circomkit({
-    protocol: "groth16",
-  });
+    const circomkit = await getCircomkit();
+    const circuitsCfg: { [key: string]: CircuitConfig } = await 
+        fs.promises.readFile(
+            CIRCUITS_CFG_PATH, "utf8"
+        ).then(
+            data => JSON.parse(data)
+        );
 
-  // artifacts output at `build/multiplier_3` directory
-  await circomkit.compile("multiplier_3", {
-    file: "multiplier",
-    template: "Multiplier",
-    params: [3],
-  });
+    if (!fs.existsSync(CONTRACTS_DIR))
+        await fs.promises.mkdir(CONTRACTS_DIR);
 
-  // proof & public signals at `build/multiplier_3/my_input` directory
-  await circomkit.prove("multiplier_3", "my_input", { in: [3, 5, 7] });
+    // this assumes the default pathing from circomkit
+    for (const circuit in circuitsCfg) {
+        const config = circuitsCfg[circuit];
+        await circomkit.clean(circuit);
+        const buildDir = await circomkit.compile(circuit, config);
+        // this could take a while if the necessary ptau file is not already downloaded
+        const { proverKeyPath } = await circomkit.setup(circuit);
+        // regenerate the verification contract since it uses a different vkey
+        const contractPath = await circomkit.contract(circuit);
+        const verifierName = circuit + "Verifier";
+        // rename the contract to the circuit name + Verifier
+        await fs.promises.readFile(contractPath, "utf8")
+            .then(async (code) => {
+                const newCode = code.replace(/Groth16Verifier/g, verifierName);
+                await fs.promises.writeFile(contractPath, newCode);
+            });
+        // move all necessary components to their respective directories
+        const proofsPath = `${PROOFS_DIR}/${circuit}`;
+        if (!fs.existsSync(proofsPath))
+            await fs.promises.mkdir(proofsPath, { recursive: true });
 
-  // verify with proof & public signals at `build/multiplier_3/my_input`
-  const ok = await circomkit.verify("multiplier_3", "my_input");
-  if (ok) {
-    circomkit.log("Proof verified!", "success");
-  } else {
-    circomkit.log("Verification failed.", "error");
-  }
+        await renameFile(contractPath, CONTRACTS_DIR, verifierName + ".sol");
+        await renameFile(proverKeyPath, proofsPath, circuit + ".zkey");
+        await renameFile(`${buildDir}/${circuit}_js/${circuit}.wasm`, proofsPath, circuit + ".wasm");
+    }
 }
 
 main()
